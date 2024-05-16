@@ -1,0 +1,91 @@
+.inputs{
+    margin-top: 48px;
+
+    form{
+
+        display: flex;
+        gap: 20px;
+
+        .name{
+            label{
+                color: #ffffff;
+            }
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        .price{
+            label{
+                color: #ffffff;
+            }
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        input{
+            width: 452px;
+            height: 38px;
+            margin-top: 3px;
+            border: 1px solid #CED4DA;
+            border-radius: 4px;
+            padding: 0 15px;
+        }
+
+        select{
+            width: 216px;
+            height: 38px;
+            margin-top: 3px;
+            border: 1px solid #CED4DA;
+            border-radius: 4px;
+            padding: 0 15px;
+        }
+
+        input[type="range"] {
+            /* Убираем стандартные стили ползунка */
+            -webkit-appearance: none;
+            -moz-apperance: none;
+            appearance: none;
+            /* Указываем высоту ползунка */
+            height: 5px;
+            /* Задаем фон и цвет контура ползунка */
+            background: #ddd;
+            border-radius: 5px;
+          }
+          
+          input[type="range"]::-webkit-slider-thumb {
+            /* Размер и стиль ползунка */
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #6c5ce7;
+            cursor: pointer;
+          }
+          
+          input[type="range"]::-moz-range-thumb {
+            /* Размер и стиль ползунка для Firefox */
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #6c5ce7;
+            cursor: pointer;
+          }
+          
+          /* Цвет выделенного промежутка */
+          input[type="range"]::-moz-range-progress {
+            background-color: #6c5ce7;
+          }
+          
+          input[type="range"]::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, #6c5ce7 0%, #6c5ce7 100%);
+          }
+          
+          span{
+            color: white;
+            padding: 10px;
+          }
+
+    }
+}
