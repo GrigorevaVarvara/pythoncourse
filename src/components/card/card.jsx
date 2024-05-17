@@ -2,7 +2,7 @@ import './card.scss'
 import { Link } from 'react-router-dom';
 
 function Card({id, img, name,description,price}) {
-    return <div className="card row">
+    return <div className="course row">
         <div className="image">
             <img alt='' src={`../../../img/${img}`}></img>
         </div>

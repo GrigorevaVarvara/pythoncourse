@@ -1,0 +1,18 @@
+.footer {
+    background-color: #322a8f; // или любой другой цвет
+    padding: 20px 0;
+  
+    .logo {
+      max-height: 50px;
+    }
+  
+    .social {
+      display: flex;
+      justify-content: flex-end; // Выравниваем иконки по правому краю
+  
+      .social-icon {
+        margin-left: 10px; // Пространство между иконками
+      }
+    }
+  }
+  

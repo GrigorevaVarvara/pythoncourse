@@ -1,4 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;700&display=swap');
+:root {
+    --main-bg-color: #5446EB;
+}
+
+html, body {
+    background-color: var(--main-bg-color);
+    height: 100%;
+    margin: 0;
+}
+
+html {
+    scroll-padding-top: calc(4.5rem - 1px) !important;
+}
+
+#root, .app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
 
 * {
     margin: 0;
@@ -6,68 +24,82 @@
     box-sizing: border-box;
 }
 
-html {
-    scroll-padding-top: calc(4.5rem - 1px) !important;
-}
-
 body {
     letter-spacing: 0.0625em !important;
-    font-family: 'Readex Pro', sans-serif;
+    font-family: 'Readex Pro', sans-serif !important;
     font-size: 16px;
-    background-color: #5446EB;
+    background-color: var(--main-bg-color);
 }
 
-
-
-h2{
+h2 {
     font-size: 2.5em;
     color: white;
     font-weight: 700;
 }
 
-a{
+a {
     color: white;
     text-decoration: none;
 }
 
-.btn {
-    font-weight: 700;
-    text-transform: uppercase;
-    border: 0;
-
+button,
+a.btn {
+    background-color: white;
     color: #5446EB;
-    background-color: #fff;
     border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
 
+button:hover,
+a.btn:hover {
+    background-color: #EAEAEA;
+    color: #5446EB;
+}
+
+body, html {
+    height: 100%;
+    margin: 0;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+}
 
-    height: 50px;
-    width: 150px;
+#root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.content {
+    flex: 1;
+    padding: 20px;
+}
+
+.footer {
+    padding: 20px 0;
+    width: 100%;
+    background-color: #333;
+    color: white;
+    text-align: center;
 }
 
 @media only screen and (max-width: 768px) {
     body {
-        font-size: 12px; /* Adjust font size for better readability */
+        font-size: 12px;
         min-height: 100vh;
     }
-
-
     header {
         position: fixed;
         top: 0;
         width: 100%;
     }
-    
-    footer {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-    }
-
-    Routes {
-        height: calc(100vh - (headerHeight + footerHeight)); /* Высота равна 100% высоты видимой области за вычетом высоты заголовка и подвала */
-        overflow-y: auto; /* Добавление вертикальной прокрутки при необходимости */
+    .content {
+        padding-top: calc(4.5rem + 20px);
     }
 }

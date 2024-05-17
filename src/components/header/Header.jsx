@@ -12,42 +12,49 @@ const Header = () => {
     useEffect(()=>{
         onAuthStateChanged(auth, (user) => {
             if (user) {
-              // User is signed in, see docs for a list of available properties
-              // https://firebase.google.com/docs/reference/js/firebase.User
-              setUserLoggedIn(true); // Устанавливаем состояние как true, если пользователь авторизован
+              setUserLoggedIn(true); 
               const uid = user.uid;
-              // ...
-              console.log("uid", uid)
+              console.log("uid", uid);
             } else {
-              // User is signed out
-              // ...
-              setUserLoggedIn(false); // Устанавливаем состояние как false, если пользователь не авторизован
-              console.log("user is logged out")
+              setUserLoggedIn(false); 
+              console.log("user is logged out");
             }
           });
          
-    }, [])
+    }, []);
 
     const navigate = useNavigate();
  
     const handleLogout = () => {               
         signOut(auth).then(() => {
-        // Sign-out successful.
             navigate("/");
-            console.log("Signed out successfully")
+            console.log("Signed out successfully");
         }).catch((error) => {
-        // An error happened.
+            console.error("Sign out error", error);
         });
     }
     
-  return (
-        <header >
-            <a href="/"><img class="logo" src={logo} alt="MAP"></img></a>
-            {!userLoggedIn && <a className="btn btn-primary" href="/login">Войти</a>}
-            {userLoggedIn &&<div class="row menu"><a href="lk"><button className="btn btn-primary">Личный кабинет</button></a>
-              <button className="btn btn-primary" onClick={handleLogout}>Выйти</button></div>}
+    return (
+        <header className="header">
+            <div className="header-content">
+                <a href="/"><img className="logo" src={logo} alt="MAP"></img></a>
+                <div className="button-group">
+                    {!userLoggedIn && (
+                        <div className="menu">
+                            <a className="btn btn-primary" href="/signup">Зарегистрироваться</a>
+                            <a className="btn btn-primary" href="/login">Войти</a>
+                        </div>
+                    )}
+                    {userLoggedIn && (
+                        <div className="menu">
+                            <a href="/lk"><button className="btn btn-primary">Личный кабинет</button></a>
+                            <button className="btn btn-primary" onClick={handleLogout}>Выйти</button>
+                        </div>
+                    )}
+                </div>
+            </div>
         </header>
-  )
+    )
 }
  
-export default Header
+export default Header;

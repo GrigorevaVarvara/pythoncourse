@@ -1,4 +1,26 @@
-.menu{
-    justify-content: flex-end;
-    gap: 30px;
+.header {
+    background-color: #5446EB;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .logo {
+        height: 50px; /* Adjust the height as needed */
+    }
+
+    .button-group {
+        display: flex;
+        align-items: center;
+        
+        .btn {
+            margin-left: 10px;
+        }
+    }
 }
