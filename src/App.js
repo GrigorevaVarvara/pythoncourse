@@ -10,27 +10,28 @@ import Footer from './components/footer/Foooter';
 import Profile from './page/profile/Profile';
 import Store from './page/store/store';
 import CoursePage from './page/coursepage/coursepage';
+import PasswordReset from './page/passwordreset/passwordreset';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-awesome-slider/dist/styles.css';
  
 function App() {
- 
-  
   return (
     <Router>
-      <div>
+      <div id="root">
+        <Header />
         <section>
-          <Header/>                              
-            <Routes>                                                                        
-              <Route path="/" element={<Home/>}/>
-              <Route path="/signup" element={<Signup/>}/>
-              <Route path="/login" element={<Login/>}/>
-              <Route path="/lk" element={<Profile/>}/>
-              <Route path="/store" element={<Store/>}/>
-              <Route path="/courses/:id" component={CoursePage} />
-            </Routes> 
-            <Footer/>                   
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/password-reset" element={<PasswordReset />} />
+            <Route path="/lk" element={<Profile />} />
+            <Route path="/store" element={<Store />} />
+            <Route path="/courses/:id" element={<CoursePage />} />
+
+          </Routes>
         </section>
+        <Footer />
       </div>
     </Router>
   );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../../firebase';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 import './login.scss';
@@ -23,6 +23,19 @@ const Login = () => {
                 const errorMessage = error.message;
                 console.log(errorCode, errorMessage);
             });
+    };
+
+    const onGoogleSignIn = async () => {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            console.log(user);
+            navigate("/lk");
+        } catch (error) {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(errorCode, errorMessage);
+        }
     };
 
     return (
@@ -56,10 +69,23 @@ const Login = () => {
                                 </Button>
                             </Form>
 
+                            <Button
+                                variant="danger"
+                                className="w-100 mt-3"
+                                onClick={onGoogleSignIn}
+                            >
+                                Войти через Google
+                            </Button>
+
                             <p className="mt-3 text-center">
                                 Нет аккаунта?{' '}
                                 <NavLink to="/signup" className="link">
                                     Зарегистрируйтесь, сейчас!
+                                </NavLink>
+                            </p>
+                            <p className="mt-3 text-center">
+                                <NavLink to="/password-reset" className="link">
+                                    Забыли пароль?
                                 </NavLink>
                             </p>
                         </div>

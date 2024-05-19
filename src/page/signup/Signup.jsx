@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../../firebase';
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import './signup.scss';
 
@@ -25,7 +25,21 @@ const Signup = () => {
         const errorMessage = error.message;
         console.log(errorCode, errorMessage);
       });
-  }
+  };
+
+  const onGoogleSignIn = async () => {
+    await signInWithPopup(auth, googleProvider)
+      .then((result) => {
+        const user = result.user;
+        console.log(user);
+        navigate("/login");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+      });
+  };
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -61,6 +75,14 @@ const Signup = () => {
                   </Button>
                 </Form>
 
+                <Button 
+                  variant="danger" 
+                  className="w-100 mt-3" 
+                  onClick={onGoogleSignIn}
+                >
+                  Зарегистрироваться через Google
+                </Button>
+
                 <p className="mt-3 text-center">
                   Уже есть аккаунт?{' '}
                   <NavLink to="/login">
@@ -77,3 +99,4 @@ const Signup = () => {
 }
 
 export default Signup;
+
