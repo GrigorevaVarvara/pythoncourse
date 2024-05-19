@@ -15,6 +15,7 @@ const Login = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
+                localStorage.setItem('currentUser', JSON.stringify(user)); // Сохраняем информацию о пользователе в localStorage
                 navigate("/lk");
                 console.log(user);
             })
@@ -29,6 +30,7 @@ const Login = () => {
         try {
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
+            localStorage.setItem('currentUser', JSON.stringify(user)); // Сохраняем информацию о пользователе в localStorage
             console.log(user);
             navigate("/lk");
         } catch (error) {
