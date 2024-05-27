@@ -114,7 +114,7 @@ const Profile = () => {
                     </button>
                 </div>
                 <div className="col-md-6 d-flex flex-column">
-                    <NavLink to="/course-python" className="btn btn-link">Курс Python</NavLink>
+                    <NavLink to="/quiz" className="btn btn-link">Квизы</NavLink>
                     <NavLink to="/course-ml-basics" className="btn btn-link">Курс основы машинного обучения</NavLink>
                     <NavLink to="/course-scrapy-beautifulsoup" className="btn btn-link">Библиотеки Scrapy и BeautifulSoup</NavLink>
                     <NavLink to="/support" className="btn btn-link">Поддержка</NavLink>
