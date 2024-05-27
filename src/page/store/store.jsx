@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import './store.scss';
-
 import Cardlist from '../../components/cardlist/cardlist';
 
 const Store = () => {
@@ -45,9 +44,7 @@ const Store = () => {
   };
 
   const filteredCards = cards.filter(card => {
-    // Фильтрация по названию
     const nameMatch = card.name.toLowerCase().includes(searchName.toLowerCase());
-    // Фильтрация по стоимости
     const priceMatch = card.price >= minPrice && card.price <= maxPrice;
     return nameMatch && priceMatch;
   });
@@ -56,19 +53,27 @@ const Store = () => {
     <div className="container">
       <h1>Каталог курсов MAP</h1>
 
-      <div className="inputs">
-        <form action="">
-          <div className="name">
-            <label htmlFor="name">Название</label>
-            <input type="text" placeholder="Поиск" id="name" value={searchName} onChange={handleNameChange}></input>
-          </div>
-          <div className="price">
-            <label>Минимальная стоимость:</label>
-            <input type="number" min="0" value={minPrice} onChange={handleMinPriceChange} />
-            <label>Максимальная стоимость:</label>
-            <input type="number" min="0" value={maxPrice} onChange={handleMaxPriceChange} />
-          </div>
-        </form>
+      <div className="row">
+        <div className="col">
+          <form>
+            <div className="form-group">
+              <label htmlFor="name">Название</label>
+              <input type="text" className="form-control" placeholder="Поиск" id="name" value={searchName} onChange={handleNameChange} />
+            </div>
+          </form>
+        </div>
+        <div className="col">
+          <form>
+            <div className="form-group">
+              <label htmlFor="minPrice">Минимальная стоимость:</label>
+              <input type="number" className="form-control" min="0" id="minPrice" value={minPrice} onChange={handleMinPriceChange} />
+            </div>
+            <div className="form-group">
+              <label htmlFor="maxPrice">Максимальная стоимость:</label>
+              <input type="number" className="form-control" min="0" id="maxPrice" value={maxPrice} onChange={handleMaxPriceChange} />
+            </div>
+          </form>
+        </div>
       </div>
 
       <Cardlist cards={filteredCards} />
