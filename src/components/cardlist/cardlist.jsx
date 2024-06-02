@@ -1,12 +1,15 @@
-import Card from '../card/card';
+import React from 'react';
 import './cardlist.scss';
+import Card from '../card/card';
 
 function Cardlist({ cards }) {
   return (
-    <div className="card-list container mt-4 mb-4"> {/* Added Bootstrap spacing utilities */}
+    <div className="card-list container mt-4 mb-4">
       <div className="list">
         {cards.map((card) => (
           <Card
+            key={card.id}
+            id={card.id}
             img={card.img}
             name={card.name}
             description={card.description}
@@ -19,3 +22,5 @@ function Cardlist({ cards }) {
 }
 
 export default Cardlist;
+
+

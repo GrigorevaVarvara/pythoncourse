@@ -10,7 +10,7 @@ import Footer from './components/footer/Foooter';
 import Profile from './page/profile/Profile';
 import Store from './page/store/store';
 import Quiz from './page/quiz/Quiz';
-import CoursePage from './page/coursepage/coursepage';
+import CourseDetails from './page/coursedetails/coursedetails';
 import PasswordReset from './page/passwordreset/passwordreset';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-awesome-slider/dist/styles.css';
@@ -29,8 +29,7 @@ function App() {
             <Route path="/lk" element={<Profile />} />
             <Route path="/quiz" element={<Quiz/>} />
             <Route path="/store" element={<Store />} />
-            <Route path="/courses/:id" element={<CoursePage />} />
-
+            <Route path="/courses/:id" element={<CourseDetails />} />
           </Routes>
         </section>
         <Footer />

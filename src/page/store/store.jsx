@@ -1,35 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './store.scss';
 import Cardlist from '../../components/cardlist/cardlist';
+import { ref, onValue } from 'firebase/database';
+import { db } from '../../firebase';
 
 const Store = () => {
-  const [cards, setCards] = useState([
-    {
-      id: 1,
-      img: 'placeholder.jpeg',
-      name: 'Курс по React',
-      description: 'Изучите основы React и создайте свои первые веб-приложения.',
-      price: 200,
-    },
-    {
-      id: 2,
-      img: 'placeholder.jpeg',
-      name: 'Курс по JavaScript',
-      description: 'Погрузитесь в мир JavaScript и освойте его настоящие силы.',
-      price: 150,
-    },
-    {
-      id: 3,
-      img: 'placeholder.jpeg',
-      name: 'Курс по Python',
-      description: 'Начните свой путь с Python и станьте опытным разработчиком.',
-      price: 180,
-    },
-  ]);
-
+  const [cards, setCards] = useState([]);
   const [searchName, setSearchName] = useState('');
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(1000);
+
+  useEffect(() => {
+    const cardsRef = ref(db, 'cards');
+    onValue(cardsRef, (snapshot) => {
+      const data = snapshot.val();
+      const formattedData = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+      setCards(formattedData);
+    });
+  }, []);
 
   const handleNameChange = (e) => {
     setSearchName(e.target.value);
