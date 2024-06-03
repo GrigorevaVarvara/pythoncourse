@@ -23,7 +23,10 @@ const Quiz = () => {
       if (snapshot.exists()) {
         const questionsList = Object.values(snapshot.val());
         const shuffledQuestions = questionsList.sort(() => 0.5 - Math.random());
-        const selectedQuestions = shuffledQuestions.slice(0, 10);
+        const selectedQuestions = shuffledQuestions.slice(0, 20).map(question => ({
+          ...question,
+          options: shuffleArray([question.option1, question.option2, question.option3, question.option4])
+        }));
         console.log('Selected questions: ', selectedQuestions);
         setQuestions(selectedQuestions);
         setCurrentQuestionIndex(0);
@@ -37,6 +40,15 @@ const Quiz = () => {
     } catch (error) {
       console.error("Error fetching questions: ", error);
     }
+  };
+
+  const shuffleArray = (array) => {
+    const shuffledArray = array.slice();
+    for (let i = shuffledArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+    }
+    return shuffledArray;
   };
 
   const handleAnswerOptionClick = (selectedOption) => {
@@ -93,7 +105,7 @@ const Quiz = () => {
                   </h5>
                   <p className="card-text">{currentQuestion.question}</p>
                   <div className="list-group">
-                    {[currentQuestion.option1, currentQuestion.option2, currentQuestion.option3, currentQuestion.option4].map((option, index) => (
+                    {currentQuestion.options.map((option, index) => (
                       <button
                         key={index}
                         className={`list-group-item list-group-item-action ${
