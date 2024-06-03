@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './store.scss';
 import Cardlist from '../../components/cardlist/cardlist';
 import { ref, onValue } from 'firebase/database';
-import { db } from '../../firebase';
+import { getStorage, ref as storageRef, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../../firebase';
 
 const Store = () => {
   const [cards, setCards] = useState([]);
@@ -12,9 +13,15 @@ const Store = () => {
 
   useEffect(() => {
     const cardsRef = ref(db, 'cards');
-    onValue(cardsRef, (snapshot) => {
+    onValue(cardsRef, async (snapshot) => {
       const data = snapshot.val();
-      const formattedData = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+      const formattedData = await Promise.all(
+        Object.keys(data).map(async (key) => {
+          const imgRef = storageRef(storage, `course_img/${data[key].img}`);
+          const imgUrl = await getDownloadURL(imgRef);
+          return { id: key, imgUrl, ...data[key] };
+        })
+      );
       setCards(formattedData);
     });
   }, []);

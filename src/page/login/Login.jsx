@@ -2,41 +2,38 @@ import React, { useState } from 'react';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Alert } from 'react-bootstrap'; // Импортируем компонент Alert из react-bootstrap
 import './login.scss';
 
 const Login = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState(null); // Состояние для хранения ошибки
 
     const onLogin = (e) => {
         e.preventDefault();
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                localStorage.setItem('currentUser', JSON.stringify(user)); // Сохраняем информацию о пользователе в localStorage
+                localStorage.setItem('currentUser', JSON.stringify(user));
                 navigate("/lk");
                 console.log(user);
             })
             .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log(errorCode, errorMessage);
+                setError('Неверный адрес почты или пароль'); // Устанавливаем сообщение об ошибке
             });
     };
-
+    
     const onGoogleSignIn = async () => {
         try {
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
-            localStorage.setItem('currentUser', JSON.stringify(user)); // Сохраняем информацию о пользователе в localStorage
+            localStorage.setItem('currentUser', JSON.stringify(user));
             console.log(user);
             navigate("/lk");
         } catch (error) {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            console.log(errorCode, errorMessage);
+            setError('Неверный адрес почты или пароль'); // Устанавливаем сообщение об ошибке
         }
     };
 
@@ -47,6 +44,7 @@ const Login = () => {
                     <div className="card">
                         <div className="card-body">
                             <h2 className="text-center mb-4">Авторизация</h2>
+                            {error && <Alert variant="danger">{error}</Alert>} {/* Выводим сообщение об ошибке */}
                             <Form>
                                 <Form.Group className="mb-3" controlId="email">
                                     <Form.Control

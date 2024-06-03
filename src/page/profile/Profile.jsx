@@ -55,7 +55,6 @@ const Profile = () => {
             await setDoc(userDocRef, {
                 displayName: newDisplayName,
                 email: newEmail,
-                photoURL: newPhotoURL
             }, { merge: true });
 
             if (selectedFile) {
@@ -88,10 +87,6 @@ const Profile = () => {
                                     <div className="mb-3">
                                         <label htmlFor="email" className="form-label">Электронная почта</label>
                                         <input type="email" className="form-control" id="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="photoURL" className="form-label">URL фотографии профиля</label>
-                                        <input type="text" className="form-control" id="photoURL" value={newPhotoURL} onChange={(e) => setNewPhotoURL(e.target.value)} />
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="fileInput" className="form-label">Выберите файл фотографии профиля</label>

@@ -10,7 +10,7 @@ function Cardlist({ cards }) {
           <Card
             key={card.id}
             id={card.id}
-            img={card.img}
+            imgUrl={card.imgUrl}
             name={card.name}
             description={card.description}
             price={card.price}
@@ -22,5 +22,3 @@ function Cardlist({ cards }) {
 }
 
 export default Cardlist;
-
-
