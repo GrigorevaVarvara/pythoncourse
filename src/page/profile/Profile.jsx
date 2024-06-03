@@ -1,23 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { collection, getFirestore, doc, getDoc, setDoc } from 'firebase/firestore'; // Импорт функций Firestore
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'; // Импорт функций Firebase Storage
-import profilePhoto from "../../img/profilePhoto.png"; // Импорт стандартной фотографии профиля
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import profilePhoto from "../../img/profilePhoto.png";
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Profile = () => {
+    const [user, setUser] = useState(null);
     const [userData, setUserData] = useState(null);
     const [editing, setEditing] = useState(false);
-    const [newDisplayName, setNewDisplayName] = useState('');
+    const [newName, setNewName] = useState('');
     const [newEmail, setNewEmail] = useState('');
     const [newPhotoURL, setNewPhotoURL] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
 
     useEffect(() => {
+        const auth = getAuth();
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setUser(user);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
         const fetchUserData = async () => {
+            if (!user) return;
+
             try {
                 const db = getFirestore();
-                const userDocRef = doc(db, "users", "userId"); // Замените "userId" на идентификатор текущего пользователя
+                const userDocRef = doc(db, "users", user.uid);
                 const userDocSnapshot = await getDoc(userDocRef);
                 if (userDocSnapshot.exists()) {
                     setUserData(userDocSnapshot.data());
@@ -28,47 +41,63 @@ const Profile = () => {
                 console.error("Error accessing Firestore:", error);
             }
         };
-    
+
         fetchUserData();
-    }, []);
+    }, [user]);
 
     useEffect(() => {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        setUserData(currentUser);
-    }, []);
+        if (userData) {
+            setNewName(userData.name || '');
+            setNewEmail(userData.email || '');
+            setNewPhotoURL(userData.photoURL || '');
+        }
+    }, [userData]);
 
     const handleEditProfile = () => {
         setEditing(!editing);
-        if (!editing && userData) {
-            setNewDisplayName(userData.displayName);
-            setNewEmail(userData.email);
-            setNewPhotoURL(userData.photoURL);
-        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         try {
             const db = getFirestore();
-            const userDocRef = doc(db, "users", "userId"); // Замените "userId" на идентификатор текущего пользователя
+            const userDocRef = doc(db, "users", user.uid);
+            
+            // Update user data in Firestore
             await setDoc(userDocRef, {
-                displayName: newDisplayName,
+                name: newName,
                 email: newEmail,
+                photoURL: newPhotoURL // Update profile photo URL in Firestore
             }, { merge: true });
-
+    
             if (selectedFile) {
+                // Upload new profile photo to Firebase Storage
                 const storage = getStorage();
-                const storageRef = storageRef(storage, `profilePhotos/userId/${selectedFile.name}`); // Путь, куда будет сохранен файл
-                await uploadBytes(storageRef, selectedFile);
-                const downloadURL = await getDownloadURL(storageRef);
+                const imageRef = storageRef(storage, `user_image/${selectedFile.name}`);
+                await uploadBytes(imageRef, selectedFile);
+                
+                // Get the download URL of the uploaded photo
+                const downloadURL = await getDownloadURL(imageRef);
+                
+                // Update state with the new photo URL
                 setNewPhotoURL(downloadURL);
+    
+                // Update user data in Firestore with the new photo URL
+                await setDoc(userDocRef, {
+                    photoURL: downloadURL // Update profile photo URL in Firestore
+                }, { merge: true });
             }
-
+    
+            // Exit editing mode
             setEditing(false);
         } catch (error) {
             console.error("Error updating profile:", error);
         }
+    };
+
+    const handleFileChange = (e) => {
+        setSelectedFile(e.target.files[0]);
     };
 
     return (
@@ -81,8 +110,8 @@ const Profile = () => {
                             {editing ? (
                                 <form onSubmit={handleSubmit}>
                                     <div className="mb-3">
-                                        <label htmlFor="displayName" className="form-label">Имя</label>
-                                        <input type="text" className="form-control" id="displayName" value={newDisplayName} onChange={(e) => setNewDisplayName(e.target.value)} />
+                                        <label htmlFor="name" className="form-label">Имя</label>
+                                        <input type="text" className="form-control" id="name" value={newName} onChange={(e) => setNewName(e.target.value)} />
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="email" className="form-label">Электронная почта</label>
@@ -90,20 +119,18 @@ const Profile = () => {
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="fileInput" className="form-label">Выберите файл фотографии профиля</label>
-                                        <input type="file" className="form-control" id="fileInput" onChange={(e) => setSelectedFile(e.target.files[0])} />
+                                        <input type="file" className="form-control" id="fileInput" onChange={handleFileChange} />
                                     </div>
                                     <button type="submit" className="btn btn-primary">Сохранить изменения</button>
                                 </form>
                             ) : (
                                 <>
-                                    {userData && <h3 className='text-dark'>Привет, {userData.displayName}!</h3>}
+                                    {userData && <h3 className='text-dark'>Привет, {userData.name}!</h3>}
                                     {userData && <p className='text-dark'>Почта: {userData.email}</p>}
-                                    {userData && <p className='text-dark'>Пройдено занятий: {userData.completedLessons}</p>}
                                 </>
                             )}
                         </div>
                     </div>
-                    <h3>Прогресс:</h3>
                     <button className='btn btn-primary mt-2' onClick={handleEditProfile}>
                         {editing ? 'Отмена' : 'Редактировать профиль'}
                     </button>

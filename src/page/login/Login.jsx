@@ -2,26 +2,26 @@ import React, { useState } from 'react';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Form, Button, Alert } from 'react-bootstrap'; // Импортируем компонент Alert из react-bootstrap
+import { Form, Button, Alert } from 'react-bootstrap';
+import { RiEyeFill, RiEyeOffFill } from 'react-icons/ri';
 import './login.scss';
 
 const Login = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(null); // Состояние для хранения ошибки
+    const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState(null);
 
     const onLogin = (e) => {
         e.preventDefault();
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                navigate("/lk");
-                console.log(user);
+                navigate("/lk"); // Перенаправляем на страницу профиля
             })
             .catch((error) => {
-                setError('Неверный адрес почты или пароль'); // Устанавливаем сообщение об ошибке
+                setError('Неверный адрес почты или пароль');
             });
     };
     
@@ -29,11 +29,9 @@ const Login = () => {
         try {
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            console.log(user);
-            navigate("/lk");
+            navigate("/lk"); // Перенаправляем на страницу профиля
         } catch (error) {
-            setError('Неверный адрес почты или пароль'); // Устанавливаем сообщение об ошибке
+            setError('Ошибка при входе через Google');
         }
     };
 
@@ -44,7 +42,7 @@ const Login = () => {
                     <div className="card">
                         <div className="card-body">
                             <h2 className="text-center mb-4">Авторизация</h2>
-                            {error && <Alert variant="danger">{error}</Alert>} {/* Выводим сообщение об ошибке */}
+                            {error && <Alert variant="danger">{error}</Alert>}
                             <Form>
                                 <Form.Group className="mb-3" controlId="email">
                                     <Form.Control
@@ -55,13 +53,26 @@ const Login = () => {
                                     />
                                 </Form.Group>
 
-                                <Form.Group className="mb-3" controlId="password">
+                                <Form.Group className="mb-3 position-relative" controlId="password">
                                     <Form.Control
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         placeholder="Пароль"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                     />
+                                    <div className="position-absolute end-0 top-50 translate-middle-y" style={{ paddingRight: '10px' }}>
+                                        {showPassword ? (
+                                            <RiEyeOffFill
+                                                onClick={() => setShowPassword(false)}
+                                                style={{ cursor: 'pointer' }}
+                                            />
+                                        ) : (
+                                            <RiEyeFill
+                                                onClick={() => setShowPassword(true)}
+                                                style={{ cursor: 'pointer' }}
+                                            />
+                                        )}
+                                    </div>
                                 </Form.Group>
 
                                 <Button variant="primary" type="submit" className="w-100" onClick={onLogin}>
