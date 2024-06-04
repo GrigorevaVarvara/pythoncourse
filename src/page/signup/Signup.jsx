@@ -38,19 +38,22 @@ const Signup = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
   
+      // Upload photo to Firebase Storage
       const storageRef = ref(storage, `user_image/${photo.name}`);
       await uploadBytes(storageRef, photo);
-  
       const photoURL = await getDownloadURL(storageRef);
   
+      // Update user's profile with name and photoURL
+      await updateProfile(user, { displayName: name, photoURL });
+  
+      // Add user data to Firestore database
       await setDoc(doc(db, 'users', user.uid), {
         name: name,
         email: email,
         photoURL: photoURL
       });
   
-      await updateProfile(user, { displayName: name, photoURL });
-  
+      // Redirect user to the dashboard or wherever you want after successful registration
       navigate("/lk");
     } catch (error) {
       const errorCode = error.code;
@@ -61,7 +64,8 @@ const Signup = () => {
         setError(errorMessage);
       }
     }
-  };  
+  };
+  
 
   const onGoogleSignIn = async () => {
     try {

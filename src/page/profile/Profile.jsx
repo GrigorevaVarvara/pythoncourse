@@ -59,37 +59,36 @@ const Profile = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         try {
             const db = getFirestore();
             const userDocRef = doc(db, "users", user.uid);
             
-            // Update user data in Firestore
-            await setDoc(userDocRef, {
-                name: newName,
-                email: newEmail,
-                photoURL: newPhotoURL // Update profile photo URL in Firestore
-            }, { merge: true });
-    
+            // Загружаем новую фотографию профиля в Firebase Storage, если файл выбран
             if (selectedFile) {
-                // Upload new profile photo to Firebase Storage
                 const storage = getStorage();
                 const imageRef = storageRef(storage, `user_image/${selectedFile.name}`);
                 await uploadBytes(imageRef, selectedFile);
                 
-                // Get the download URL of the uploaded photo
+                // Получаем URL загруженного фото
                 const downloadURL = await getDownloadURL(imageRef);
                 
-                // Update state with the new photo URL
+                // Обновляем состояние с новым URL фото
                 setNewPhotoURL(downloadURL);
-    
-                // Update user data in Firestore with the new photo URL
+
+                // Обновляем данные пользователя в Firestore с новым URL фото
                 await setDoc(userDocRef, {
-                    photoURL: downloadURL // Update profile photo URL in Firestore
+                    photoURL: downloadURL // Обновляем URL фотографии профиля в Firestore
                 }, { merge: true });
             }
-    
-            // Exit editing mode
+
+            // Обновляем остальные данные пользователя в Firestore
+            await setDoc(userDocRef, {
+                name: newName,
+                email: newEmail
+            }, { merge: true });
+
+            // Выходим из режима редактирования
             setEditing(false);
         } catch (error) {
             console.error("Error updating profile:", error);
@@ -137,7 +136,7 @@ const Profile = () => {
                 </div>
                 <div className="col-md-6 d-flex flex-column">
                     <NavLink to="/quiz" className="btn btn-link">Квизы</NavLink>
-                    <NavLink to="/course-ml-basics" className="btn btn-link">Курс основы машинного обучения</NavLink>
+                    <NavLink to="/leaderboard" className="btn btn-link">Таблица лидеров</NavLink>
                     <NavLink to="/course-scrapy-beautifulsoup" className="btn btn-link">Библиотеки Scrapy и BeautifulSoup</NavLink>
                     <NavLink to="/support" className="btn btn-link">Поддержка</NavLink>
                 </div>

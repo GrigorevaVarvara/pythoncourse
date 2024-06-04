@@ -1,7 +1,9 @@
-// src/page/quiz/Quiz.jsx
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
 import { ref, get } from 'firebase/database';
+import { getFirestore, doc, getDoc, updateDoc, setDoc, increment } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { NavLink } from 'react-router-dom';
 import './quiz.scss';
 
 const Quiz = () => {
@@ -11,10 +13,27 @@ const Quiz = () => {
   const [showScore, setShowScore] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isCorrect, setIsCorrect] = useState(null);
+  const [user, setUser] = useState(null);
+  const [totalScore, setTotalScore] = useState(0); // Добавлено для хранения общего количества очков
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     fetchQuestions();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchTotalScore(); // Загружаем общее количество очков при загрузке пользователя
+    }
+  }, [user]);
 
   const fetchQuestions = async () => {
     try {
@@ -39,6 +58,23 @@ const Quiz = () => {
       }
     } catch (error) {
       console.error("Error fetching questions: ", error);
+    }
+  };
+
+  const fetchTotalScore = async () => {
+    try {
+      const db = getFirestore();
+      const quizResultRef = doc(db, 'quiz_results', user.uid);
+      const quizResultSnapshot = await getDoc(quizResultRef);
+
+      if (quizResultSnapshot.exists()) {
+        const data = quizResultSnapshot.data();
+        setTotalScore(data.score || 0); // Устанавливаем общее количество очков из Firestore
+      } else {
+        setTotalScore(0); // Если записи нет, устанавливаем общий счет равным 0
+      }
+    } catch (error) {
+      console.error("Error fetching total score: ", error);
     }
   };
 
@@ -69,8 +105,46 @@ const Quiz = () => {
         setIsCorrect(null);
       } else {
         setShowScore(true);
+        saveQuizResult();
       }
     }, 1000); // Пауза перед переходом к следующему вопросу
+  };
+
+  const saveQuizResult = async () => {
+    if (!user) {
+      console.error("User is not authenticated");
+      return;
+    }
+
+    try {
+      const db = getFirestore();
+      const quizResultRef = doc(db, 'quiz_results', user.uid);
+      const quizResultSnapshot = await getDoc(quizResultRef);
+
+      if (quizResultSnapshot.exists()) {
+        // Обновляем существующий результат
+        await updateDoc(quizResultRef, {
+          score: increment(score),
+          lastQuizDate: new Date() // Обновляем дату последнего прохождения квиза
+        });
+        // Обновляем общий счет в состоянии
+        setTotalScore((prevTotalScore) => prevTotalScore + score);
+      } else {
+        // Создаем новый результат, если документ не существует
+        await setDoc(quizResultRef, {
+          score: score,
+          userId: user.uid,
+          firstQuizDate: new Date(), // Дата первого прохождения квиза
+          lastQuizDate: new Date() // Дата последнего прохождения квиза
+        });
+        // Устанавливаем общий счет в состоянии
+        setTotalScore(score);
+      }
+
+      console.log("Quiz result saved successfully");
+    } catch (error) {
+      console.error("Error saving quiz result: ", error);
+    }
   };
 
   const handleRestartQuiz = () => {
@@ -92,9 +166,17 @@ const Quiz = () => {
               <div className="alert alert-success" role="alert">
                 Вы набрали {score} из {questions.length}!
               </div>
-              <button className="btn btn-primary btn-lg" onClick={handleRestartQuiz}>
-                Начать заново
-              </button>
+              <div className="alert alert-info" role="alert">
+                Ваше общее количество очков: {totalScore}
+              </div>
+              <div className="d-flex flex-column align-items-center">
+                <button className="btn btn-light btn-lg mb-2" onClick={handleRestartQuiz}>
+                  Начать заново
+                </button>
+                <NavLink to="/lk" className="btn btn-light btn-lg mb-2">
+                  Вернуться в личный кабинет
+                </NavLink>
+              </div>
             </div>
           ) : (
             <>

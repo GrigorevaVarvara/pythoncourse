@@ -10,6 +10,7 @@ import Footer from './components/footer/Foooter';
 import Profile from './page/profile/Profile';
 import Store from './page/store/store';
 import Quiz from './page/quiz/Quiz';
+import Leaderboard from './page/leaderboard/Leaderboard';
 import CourseDetails from './page/coursedetails/coursedetails';
 import PasswordReset from './page/passwordreset/passwordreset';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -28,6 +29,7 @@ function App() {
             <Route path="/password-reset" element={<PasswordReset />} />
             <Route path="/lk" element={<Profile />} />
             <Route path="/quiz" element={<Quiz/>} />
+            <Route path="/leaderboard" element={<Leaderboard/>} />
             <Route path="/store" element={<Store />} />
             <Route path="/courses/:id" element={<CourseDetails />} />
           </Routes>
