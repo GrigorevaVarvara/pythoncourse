@@ -71,6 +71,18 @@ const Signup = () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
+      
+      // Extract user information
+      const { displayName, email, photoURL } = user;
+      
+      // Add user data to Firestore database
+      await setDoc(doc(db, 'users', user.uid), {
+        name: displayName,
+        email: email,
+        photoURL: photoURL
+      });
+  
+      // Redirect user to the dashboard or wherever you want after successful registration
       navigate("/lk");
     } catch (error) {
       const errorCode = error.code;

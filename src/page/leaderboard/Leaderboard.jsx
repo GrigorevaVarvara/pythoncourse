@@ -23,10 +23,11 @@ const Leaderboard = () => {
           const userDocRef = doc(db, 'users', data.userId);
           const userDocSnapshot = await getDoc(userDocRef);
           if (userDocSnapshot.exists()) {
-            leaderboard.push({ id: docRef.id, ...data, username: userDocSnapshot.data().name });
+            const userData = userDocSnapshot.data();
+            leaderboard.push({ id: docRef.id, ...data, username: userData.name, photoURL: userData.photoURL });
           }
         }
-      }      
+      }
       setLeaderboardData(leaderboard);
     } catch (error) {
       console.error('Error fetching leaderboard data:', error);
@@ -36,24 +37,29 @@ const Leaderboard = () => {
   return (
     <div className="container mt-5">
       <h2 className="text-center mb-4">Таблица лидеров</h2>
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Имя пользователя</th>
-            <th>Счет</th>
-          </tr>
-        </thead>
-        <tbody>
-          {leaderboardData.map((user, index) => (
-            <tr key={user.id}>
-              <td>{index + 1}</td>
-              <td>{user.username}</td>
-              <td>{user.score}</td>
+      <div className="table-responsive ">
+        <table className="table table-striped table-bordered rounded text-start align-middle">
+          <thead className="table-light">
+            <tr>
+              <th>#</th>
+              <th>Имя пользователя</th>
+              <th>Счет</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {leaderboardData.map((user, index) => (
+              <tr key={user.id}>
+                <td>{index + 1}</td>
+                <td className="d-flex align-items-center">
+                  <img src={user.photoURL} alt={user.username} className="user-photo me-2" />
+                  {user.username}
+                </td>
+                <td>{user.score}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

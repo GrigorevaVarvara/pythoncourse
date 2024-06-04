@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { ref, onValue } from 'firebase/database';
 import { getStorage, ref as storageRef, getDownloadURL } from 'firebase/storage';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, updateDoc, getDoc, arrayUnion } from 'firebase/firestore';
 import { db, storage } from '../../firebase';
 import './coursedetails.scss'; 
 
@@ -9,8 +11,27 @@ const CourseDetails = () => {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
   const [imgUrl, setImgUrl] = useState('');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [user, setUser] = useState(null);
+  const [isPurchased, setIsPurchased] = useState(false);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
+      if (user) {
+        const db = getFirestore();
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnapshot = await getDoc(userDocRef);
+        if (userDocSnapshot.exists()) {
+          const userData = userDocSnapshot.data();
+          if (userData.courses && userData.courses.includes(id)) {
+            setIsPurchased(true);
+          }
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, [id]);
 
   useEffect(() => {
     const courseRef = ref(db, `cards/${id}`);
@@ -29,12 +50,18 @@ const CourseDetails = () => {
     });
   }, [id]);
 
-  const handlePurchase = (e) => {
-    e.preventDefault();
-    // Logic for handling course purchase
-    alert(`Спасибо за покупку, ${name}! Курс "${course.name}" будет отправлен на ${email}.`);
-    setName('');
-    setEmail('');
+  const handlePurchase = async () => {
+    try {
+      const db = getFirestore();
+      const userDocRef = doc(db, "users", user.uid);
+      await updateDoc(userDocRef, {
+        courses: arrayUnion(id)
+      });
+      setIsPurchased(true);
+      alert(`Спасибо за покупку, ${user.displayName || 'пользователь'}! Курс "${course.name}" добавлен в ваш профиль.`);
+    } catch (error) {
+      console.error("Error purchasing course:", error);
+    }
   };
 
   if (!course) {
@@ -55,37 +82,19 @@ const CourseDetails = () => {
             <div className="col-md-8">
               <p className="card-text">{course.description}</p>
               <p className="card-text"><strong>Стоимость: {course.price} руб.</strong></p>
+              {user ? (
+                isPurchased ? (
+                  <p className="text-success">Вы уже приобрели этот курс.</p>
+                ) : (
+                  <button onClick={handlePurchase} className="btn btn-primary">Купить курс</button>
+                )
+              ) : (
+                <div>
+                  <p>Для покупки курса необходимо <Link to="/login">авторизоваться</Link>.</p>
+                </div>
+              )}
             </div>
           </div>
-
-          <h2>Форма для покупки</h2>
-          <form onSubmit={handlePurchase}>
-            <div className="form-group mb-3">
-              <label htmlFor="name">Имя:</label>
-              <input
-                type="text"
-                id="name"
-                className="form-control"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group mb-3">
-              <label htmlFor="email">Email:</label>
-              <input
-                type="email"
-                id="email"
-                className="form-control"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit" className="btn btn-primary">
-              Купить курс
-            </button>
-          </form>
         </div>
       </div>
     </div>

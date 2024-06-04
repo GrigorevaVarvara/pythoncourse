@@ -36,20 +36,20 @@ const Header = () => {
     
     return (
         <header className="header">
-            <div className="header-content">
+            <div className="header-content d-flex justify-content-between align-items-center">
                 <a href="/"><img className="logo" src={logo} alt="MAP"></img></a>
-                <div className="button-group">
-                    {!userLoggedIn && (
-                        <div className="menu">
-                            <a className="btn btn-primary" href="/signup">Зарегистрироваться</a>
-                            <a className="btn btn-primary" href="/login">Войти</a>
-                        </div>
-                    )}
-                    {userLoggedIn && (
-                        <div className="menu">
-                            <a href="/lk"><button className="btn btn-primary">Личный кабинет</button></a>
-                            <button className="btn btn-primary" onClick={handleLogout}>Выйти</button>
-                        </div>
+                <div className="button-group d-flex align-items-center">
+                    <a className="btn btn-primary mx-2" href="/store">Магазин</a>
+                    {!userLoggedIn ? (
+                        <>
+                            <a className="btn btn-primary mx-2" href="/signup">Зарегистрироваться</a>
+                            <a className="btn btn-primary mx-2" href="/login">Войти</a>
+                        </>
+                    ) : (
+                        <>
+                            <a className="btn btn-primary mx-2" href="/lk">Личный кабинет</a>
+                            <a className="btn btn-primary mx-2" onClick={handleLogout}>Выйти</a>
+                        </>
                     )}
                 </div>
             </div>

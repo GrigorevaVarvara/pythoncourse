@@ -4,6 +4,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import profilePhoto from "../../img/profilePhoto.png";
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getDatabase, ref, get } from 'firebase/database'; // Updated import
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Profile = () => {
@@ -14,6 +15,8 @@ const Profile = () => {
     const [newEmail, setNewEmail] = useState('');
     const [newPhotoURL, setNewPhotoURL] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
+    const [courseName, setCourseName] = useState('');
+    const [coursesData, setCoursesData] = useState({});
 
     useEffect(() => {
         const auth = getAuth();
@@ -27,20 +30,29 @@ const Profile = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             if (!user) return;
-
+        
             try {
                 const db = getFirestore();
                 const userDocRef = doc(db, "users", user.uid);
                 const userDocSnapshot = await getDoc(userDocRef);
                 if (userDocSnapshot.exists()) {
                     setUserData(userDocSnapshot.data());
+        
+                    // Get a reference to the Realtime Database
+                    const database = getDatabase();
+                    const coursesRef = ref(database, 'cards'); // Create a reference to the 'cards' node
+                    const coursesSnapshot = await get(coursesRef);
+                    const coursesData = coursesSnapshot.val();
+                    if (coursesData) {
+                        setCoursesData(coursesData);
+                    }
                 } else {
                     console.log("User document not found.");
                 }
             } catch (error) {
                 console.error("Error accessing Firestore:", error);
             }
-        };
+        };        
 
         fetchUserData();
     }, [user]);
@@ -63,32 +75,25 @@ const Profile = () => {
         try {
             const db = getFirestore();
             const userDocRef = doc(db, "users", user.uid);
-            
-            // Загружаем новую фотографию профиля в Firebase Storage, если файл выбран
+
             if (selectedFile) {
                 const storage = getStorage();
                 const imageRef = storageRef(storage, `user_image/${selectedFile.name}`);
                 await uploadBytes(imageRef, selectedFile);
-                
-                // Получаем URL загруженного фото
+
                 const downloadURL = await getDownloadURL(imageRef);
-                
-                // Обновляем состояние с новым URL фото
                 setNewPhotoURL(downloadURL);
 
-                // Обновляем данные пользователя в Firestore с новым URL фото
                 await setDoc(userDocRef, {
-                    photoURL: downloadURL // Обновляем URL фотографии профиля в Firestore
+                    photoURL: downloadURL
                 }, { merge: true });
             }
 
-            // Обновляем остальные данные пользователя в Firestore
             await setDoc(userDocRef, {
                 name: newName,
                 email: newEmail
             }, { merge: true });
 
-            // Выходим из режима редактирования
             setEditing(false);
         } catch (error) {
             console.error("Error updating profile:", error);
@@ -98,6 +103,7 @@ const Profile = () => {
     const handleFileChange = (e) => {
         setSelectedFile(e.target.files[0]);
     };
+
 
     return (
         <div className="container card mt-4 p-4">
@@ -137,8 +143,23 @@ const Profile = () => {
                 <div className="col-md-6 d-flex flex-column">
                     <NavLink to="/quiz" className="btn btn-link">Квизы</NavLink>
                     <NavLink to="/leaderboard" className="btn btn-link">Таблица лидеров</NavLink>
-                    <NavLink to="/course-scrapy-beautifulsoup" className="btn btn-link">Библиотеки Scrapy и BeautifulSoup</NavLink>
                     <NavLink to="/support" className="btn btn-link">Поддержка</NavLink>
+                    {userData?.courses && userData.courses.length > 0 && (
+                        <div>
+                            <h4>Мои курсы:</h4>
+                            <ul col-md-6 d-flex flex-column>
+                                {userData.courses.map(courseId => (
+                                    <li className="btn btn-link" key={courseId}>
+                                        {coursesData[courseId] ? (
+                                            coursesData[courseId].name
+                                        ) : (
+                                            `Курс с ID ${courseId} не найден`
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
             </section>
         </div>
