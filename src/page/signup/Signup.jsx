@@ -26,7 +26,7 @@ const Signup = () => {
     const file = e.target.files[0];
     setPhoto(file);
   };
-
+  
   const onSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -35,27 +35,39 @@ const Signup = () => {
     }
   
     try {
+      console.log('Creating user with email and password...');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      console.log('User created:', user.uid);
   
-      // Upload photo to Firebase Storage
-      const storageRef = ref(storage, `user_image/${photo.name}`);
-      await uploadBytes(storageRef, photo);
-      const photoURL = await getDownloadURL(storageRef);
+      let photoURL = '';
+      if (photo) {
+        // Upload photo to Firebase Storage
+        const storageRef = ref(storage, `user_image/${photo.name}`);
+        console.log('Uploading photo...');
+        await uploadBytes(storageRef, photo);
+        photoURL = await getDownloadURL(storageRef);
+        console.log('Photo uploaded:', photoURL);
+      }
   
       // Update user's profile with name and photoURL
+      console.log('Updating user profile...');
       await updateProfile(user, { displayName: name, photoURL });
+      console.log('User profile updated');
   
       // Add user data to Firestore database
+      console.log('Adding user to Firestore:', user.uid);
       await setDoc(doc(db, 'users', user.uid), {
         name: name,
         email: email,
         photoURL: photoURL
       });
+      console.log('User successfully added to Firestore:', user.uid);
   
       // Redirect user to the dashboard or wherever you want after successful registration
       navigate("/lk");
     } catch (error) {
+      console.error('Error during user registration:', error);
       const errorCode = error.code;
       const errorMessage = error.message;
       if (errorCode === 'auth/email-already-in-use') {
@@ -71,20 +83,23 @@ const Signup = () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-      
+
       // Extract user information
       const { displayName, email, photoURL } = user;
-      
+
       // Add user data to Firestore database
+      console.log('Adding Google user to Firestore:', user.uid);
       await setDoc(doc(db, 'users', user.uid), {
         name: displayName,
         email: email,
         photoURL: photoURL
       });
-  
+      console.log('Google user successfully added to Firestore:', user.uid);
+
       // Redirect user to the dashboard or wherever you want after successful registration
       navigate("/lk");
     } catch (error) {
+      console.error('Google SignIn Error:', error);
       const errorCode = error.code;
       const errorMessage = error.message;
       console.log(errorCode, errorMessage);
