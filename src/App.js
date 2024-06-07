@@ -12,6 +12,10 @@ import Store from './page/store/store';
 import Quiz from './page/quiz/Quiz';
 import Leaderboard from './page/leaderboard/Leaderboard';
 import CourseDetails from './page/coursedetails/coursedetails';
+import CourseTopics from './page/coursetopics/coursetopics';
+import LessonPage from './page/lessonpage/lessonpage';
+import TaskPage from './page/taskpage/taskpage';
+import TaskDetailsPage from './page/taskdetailpage/taskdetailpage';
 import PasswordReset from './page/passwordreset/passwordreset';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-awesome-slider/dist/styles.css';
@@ -32,6 +36,10 @@ function App() {
             <Route path="/leaderboard" element={<Leaderboard/>} />
             <Route path="/store" element={<Store />} />
             <Route path="/courses/:id" element={<CourseDetails />} />
+            <Route path="/course-topics/:courseId" element={<CourseTopics />} />
+            <Route exact path="/course-topics/:courseId/:topicId/:lessonId" element={<LessonPage />}/>
+            <Route path="/course-topics/:courseId/:topicId/:lessonId/tasks" element={<TaskPage />} />
+            <Route path="/course-topics/:courseId/:topicId/:lessonId/tasks/:taskId" element={<TaskDetailsPage />} />
           </Routes>
         </section>
         <Footer />

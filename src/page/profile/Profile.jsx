@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import profilePhoto from "../../img/profilePhoto.png";
@@ -143,23 +143,23 @@ const Profile = () => {
                 <div className="col-md-6 d-flex flex-column">
                     <NavLink to="/quiz" className="btn btn-link">Квизы</NavLink>
                     <NavLink to="/leaderboard" className="btn btn-link">Таблица лидеров</NavLink>
-                    <NavLink to="/support" className="btn btn-link">Поддержка</NavLink>
-                    {userData?.courses && userData.courses.length > 0 && (
-                        <div>
-                            <h4>Мои курсы:</h4>
-                            <ul col-md-6 d-flex flex-column>
-                                {userData.courses.map(courseId => (
-                                    <li className="btn btn-link" key={courseId}>
+                                                <NavLink to="/support" className="btn btn-link">Поддержка</NavLink>
+                        {userData?.courses && userData.courses.length > 0 && (
+                            <div>
+                                <h4>Мои курсы:</h4>
+                                <ul col-md-6 d-flex flex-column>
+                                    {userData.courses.map(courseId => (
+                                        <Link to={`/course-topics/${courseId}`} className="btn btn-link">
                                         {coursesData[courseId] ? (
                                             coursesData[courseId].name
                                         ) : (
                                             `Курс с ID ${courseId} не найден`
                                         )}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+                                    </Link>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                 </div>
             </section>
         </div>

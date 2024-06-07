@@ -11,18 +11,14 @@
     margin-bottom: 20px;
   
     .image {
-      width: 100%;
-      height: 250px;
+      flex: 1;
       overflow: hidden;
-      border-radius: 10px;
-      margin-bottom: 15px;
   
-      img.course-img {
+      .course-img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
-      }
-    }
+        object-fit: cover; /* Ensures the image covers the container while maintaining aspect ratio */
+      }}
   
     .info {
       width: 100%;
