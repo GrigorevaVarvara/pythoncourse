@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link  } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { getDatabase, ref, get } from 'firebase/database';
 
 const TasksPage = () => {
@@ -53,8 +53,8 @@ const TasksPage = () => {
                     <h2>Урок: {lessonName}</h2>
                     <div>
                         <ul className="list-group">
-                            {Object.values(tasks).map(task => (
-                                <Link to={`/course-topics/${courseId}/${topicId}/${lessonId}/tasks/${task.id}`} className="list-group-item">
+                            {Object.entries(tasks).map(([taskId, task]) => (
+                                <Link key={taskId} to={`/course-topics/${courseId}/${topicId}/${lessonId}/tasks/${taskId}`} className="list-group-item">
                                     <h4>{task.name}</h4>
                                 </Link>
                             ))}
