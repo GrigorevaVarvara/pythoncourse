@@ -7,8 +7,8 @@ const TaskDetailsPage = () => {
     const { courseId, topicId, lessonId, taskId } = useParams();
     const [task, setTask] = useState(null);
     const [code, setCode] = useState('');
-    const [loading, setLoading] = useState(false); // Добавлено
-    const [result, setResult] = useState(null); // Добавлено
+    const [loading, setLoading] = useState(false);
+    const [results, setResults] = useState(null);
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -35,24 +35,40 @@ const TaskDetailsPage = () => {
 
     const handleSubmit = async () => {
         setLoading(true);
+        setResults(null);
         try {
-            const response = await axios.post('http://localhost:3000/execute', { 
-                courseId,
-                topicId,
-                lessonId,
-                taskId,
-                code
+            const inputs = task.tests.map(test => ({
+                input: test.input_data,
+                expected: test.output_data
+            }));
+
+            const response = await axios.post('https://emkc.org/api/v2/piston/execute', {
+                language: "python",
+                version: "3.10.0",
+                files: [{
+                    name: "solution.py",
+                    content: code
+                }],
+                stdin: inputs.map(input => input.input).join('\n')
             });
-            setResult(response.data);
+
+            const outputLines = response.data.run.stdout.trim().split('\n');
+            const results = inputs.map((input, index) => ({
+                input: input.input,
+                expected: input.expected,
+                result: outputLines[index],
+                passed: outputLines[index] === input.expected
+            }));
+            setResults(results);
         } catch (error) {
             console.error("Error executing code:", error);
-            setResult({ error: "Error executing code" });
+            setResults([{ error: "Error executing code" }]);
         }
         setLoading(false);
     };
 
     if (!task) {
-        return <div>Loading...</div>;
+        return <div>Загрузка...</div>;
     }
 
     return (
@@ -64,27 +80,27 @@ const TaskDetailsPage = () => {
                     <textarea
                         className="form-control"
                         rows="10"
-                        placeholder="Write your code here..."
+                        placeholder="Напишите свой код здесь..."
                         value={code}
                         onChange={handleCodeChange}
                     ></textarea>
-                    <button 
+                    <a 
                         className="btn btn-success mt-3" 
                         onClick={handleSubmit}
                         disabled={loading}
                     >
-                        {loading ? 'Executing...' : 'Submit Code'}
-                    </button>
-                    {result && (
+                        {loading ? 'Выполняется...' : 'Проверить код'}
+                    </a>
+                    {results && (
                         <div className="mt-3">
-                            {result.success !== undefined && (
-                                <div className={`alert ${result.success ? 'alert-success' : 'alert-danger'}`}>
-                                    {result.success ? 'Correct!' : `Incorrect. Expected: ${result.expected}, but got: ${result.received}`}
+                            {results.map((result, index) => (
+                                <div key={index} className={`alert ${result.passed ? 'alert-success' : 'alert-danger'}`}>
+                                    {result.passed ? 'Верно!' : `Неверно. Входные данные: ${result.input}, ожидаемый результат: ${result.expected}, было получено: ${result.result}`}
                                 </div>
-                            )}
-                            {result.error && (
+                            ))}
+                            {results.error && (
                                 <div className="alert alert-danger">
-                                    Error: {result.error}
+                                    Error: {results.error}
                                 </div>
                             )}
                         </div>
