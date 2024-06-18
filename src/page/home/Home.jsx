@@ -66,7 +66,7 @@ const Home = () => {
               </div>
             </div>
 
-            <div className="row">
+            {/* <div className="row">
               <div className="col-12 text-center">
                 <h2>Как пользоваться?</h2>
               </div>
@@ -83,7 +83,7 @@ const Home = () => {
                   </Carousel.Item>
                 </Carousel>
               </div>
-            </div>
+            </div> */}
 
             <div className="row my-4">
               <div className="col-12">
