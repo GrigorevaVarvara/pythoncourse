@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getDatabase, ref, get } from 'firebase/database';
+import { getFirestore, doc, setDoc, serverTimestamp } from 'firebase/firestore'; // Добавлен импорт функций Firestore
+import { getAuth, onAuthStateChanged  } from 'firebase/auth';
 import axios from 'axios';
 
 const TaskDetailsPage = () => {
@@ -9,6 +11,7 @@ const TaskDetailsPage = () => {
     const [code, setCode] = useState('');
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState(null);
+    const [user, setUser] = useState(null); // Добавлено состояние для текущего пользователя
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -27,6 +30,14 @@ const TaskDetailsPage = () => {
         };
 
         fetchTask();
+
+        // Получаем текущего пользователя
+        const auth = getAuth();
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setUser(user);
+        });
+
+        return () => unsubscribe();
     }, [courseId, topicId, lessonId, taskId]);
 
     const handleCodeChange = (e) => {
@@ -35,31 +46,45 @@ const TaskDetailsPage = () => {
 
     const handleSubmit = async () => {
         setLoading(true);
-        setResults(null);
+        setResults(null); // Сбрасываем результаты перед запуском новых тестов
         try {
-            const inputs = task.tests.map(test => ({
-                input: test.input_data,
-                expected: test.output_data
+            const taskResults = await Promise.all(task.tests.map(async (test) => {
+                try {
+                    const response = await axios.post('https://emkc.org/api/v2/piston/execute', {
+                        language: "python",
+                        version: "3.10.0",
+                        files: [{
+                            name: "solution.py",
+                            content: code
+                        }],
+                        stdin: test.input_data
+                    });
+
+                    const result = response.data.run.stdout.trim();
+                    return {
+                        input: test.input_data,
+                        expected: test.output_data,
+                        result: result,
+                        passed: result === test.output_data
+                    };
+                } catch (error) {
+                    console.error("Error executing code for test:", test, error);
+                    return {
+                        input: test.input_data,
+                        expected: test.output_data,
+                        result: null,
+                        passed: false,
+                        error: "Error executing code"
+                    };
+                }
             }));
 
-            const response = await axios.post('https://emkc.org/api/v2/piston/execute', {
-                language: "python",
-                version: "3.10.0",
-                files: [{
-                    name: "solution.py",
-                    content: code
-                }],
-                stdin: inputs.map(input => input.input).join('\n')
-            });
+            setResults(taskResults);
 
-            const outputLines = response.data.run.stdout.trim().split('\n');
-            const results = inputs.map((input, index) => ({
-                input: input.input,
-                expected: input.expected,
-                result: outputLines[index],
-                passed: outputLines[index] === input.expected
-            }));
-            setResults(results);
+            // Если все тесты пройдены успешно, сохраняем информацию о выполненном задании для пользователя
+            if (taskResults.every(result => result.passed)) {
+                await addCompletedTaskToFirestore();
+            }
         } catch (error) {
             console.error("Error executing code:", error);
             setResults([{ error: "Error executing code" }]);
@@ -67,9 +92,32 @@ const TaskDetailsPage = () => {
         setLoading(false);
     };
 
+    // Функция для сохранения выполненного задания в Firestore
+    const addCompletedTaskToFirestore = async () => {
+        try {
+            const db = getFirestore();
+            const userId = user.uid; // Получаем UID текущего пользователя
+
+            // Добавляем информацию о выполненном задании в коллекцию пользователя
+            await setDoc(doc(db, `users/${userId}/completedTasks`, taskId), {
+                courseId: courseId,
+                topicId: topicId,
+                lessonId: lessonId,
+                taskId: taskId,
+                timestamp: serverTimestamp()
+            });
+
+            console.log("Задание успешно сохранено для пользователя.");
+        } catch (error) {
+            console.error("Ошибка при сохранении задания для пользователя:", error);
+        }
+    };
+
     if (!task) {
         return <div>Загрузка...</div>;
     }
+
+    const allPassed = results && results.every(result => result.passed);
 
     return (
         <div className="container mt-4">
@@ -84,8 +132,8 @@ const TaskDetailsPage = () => {
                         value={code}
                         onChange={handleCodeChange}
                     ></textarea>
-                    <a 
-                        className="btn btn-success mt-3" 
+                    <a
+                        className="btn btn-success mt-3 me-2"
                         onClick={handleSubmit}
                         disabled={loading}
                     >
@@ -93,19 +141,19 @@ const TaskDetailsPage = () => {
                     </a>
                     {results && (
                         <div className="mt-3">
-                            {results.map((result, index) => (
-                                <div key={index} className={`alert ${result.passed ? 'alert-success' : 'alert-danger'}`}>
-                                    {result.passed ? 'Верно!' : `Неверно. Входные данные: ${result.input}, ожидаемый результат: ${result.expected}, было получено: ${result.result}`}
-                                </div>
-                            ))}
-                            {results.error && (
-                                <div className="alert alert-danger">
-                                    Error: {results.error}
-                                </div>
+                            {allPassed ? (
+                                <div className="alert alert-success">Все тесты пройдены успешно!</div>
+                            ) : (
+                                results.map((result, index) => (
+                                    <div key={index} className={`alert ${result.passed ? 'alert-success' : 'alert-danger'}`}>
+                                        {result.passed ? 'Верно!' : `Неверно. Входные данные: ${result.input}, ожидаемый результат: ${result.expected}, было получено: ${result.result}`}
+                                        {result.error && <div>Error: {result.error}</div>}
+                                    </div>
+                                ))
                             )}
                         </div>
                     )}
-                    <Link to={`/course-topics/${courseId}/${topicId}/${lessonId}`} className="btn btn-primary mt-3">
+                    <Link to={`/course-topics/${courseId}/${topicId}/${lessonId}/tasks`} className="btn btn-primary mt-3">
                         Назад к заданиям
                     </Link>
                 </div>

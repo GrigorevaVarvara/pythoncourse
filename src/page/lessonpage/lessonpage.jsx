@@ -50,6 +50,7 @@ const LessonPage = () => {
                     <div className="mb-4">
                         <p>{lesson.text}</p>
                         <Link to={`/course-topics/${courseId}/${topicId}/${lessonId}/tasks`} className="btn btn-primary">Перейти к заданиям</Link>
+                        <Link to={`/course-topics/${courseId}`} className="btn btn-primary">Вернуться к курсу</Link>
                     </div>
                 </div>
             </div>

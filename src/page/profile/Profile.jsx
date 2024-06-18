@@ -15,7 +15,6 @@ const Profile = () => {
     const [newEmail, setNewEmail] = useState('');
     const [newPhotoURL, setNewPhotoURL] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
-    const [courseName, setCourseName] = useState('');
     const [coursesData, setCoursesData] = useState({});
 
     useEffect(() => {
@@ -104,7 +103,6 @@ const Profile = () => {
         setSelectedFile(e.target.files[0]);
     };
 
-
     return (
         <div className="container card mt-4 p-4">
             <section className="row">
@@ -143,23 +141,22 @@ const Profile = () => {
                 <div className="col-md-6 d-flex flex-column">
                     <NavLink to="/quiz" className="btn btn-link">Квизы</NavLink>
                     <NavLink to="/leaderboard" className="btn btn-link">Таблица лидеров</NavLink>
-                                                <NavLink to="/support" className="btn btn-link">Поддержка</NavLink>
-                        {userData?.courses && userData.courses.length > 0 && (
-                            <div>
-                                <h4>Мои курсы:</h4>
-                                <ul col-md-6 d-flex flex-column>
-                                    {userData.courses.map(courseId => (
-                                        <Link to={`/course-topics/${courseId}`} className="btn btn-link">
+                    {userData?.courses && userData.courses.length > 0 && (
+                        <div>
+                            <h4>Мои курсы:</h4>
+                            <ul className="col-md-6 d-flex flex-column">
+                                {userData.courses.map(courseId => (
+                                    <Link key={courseId} to={`/course-topics/${courseId}`} className="btn btn-link">
                                         {coursesData[courseId] ? (
                                             coursesData[courseId].name
                                         ) : (
                                             `Курс с ID ${courseId} не найден`
                                         )}
                                     </Link>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
             </section>
         </div>
