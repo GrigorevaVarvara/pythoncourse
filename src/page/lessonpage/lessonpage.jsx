@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom'; // Импортируем Link
+import { useParams, Link } from 'react-router-dom';
 import { getDatabase, ref, get } from 'firebase/database';
-import YouTube from 'react-youtube'; // Импортируем компонент YouTube
+import YouTube from 'react-youtube';
 
 const LessonPage = () => {
     const { courseId, topicId, lessonId } = useParams();
@@ -37,19 +37,26 @@ const LessonPage = () => {
         return (match && match[2].length === 11) ? match[2] : null;
     }
 
+    // Опции для YouTube видео
+    const youtubeOptions = {
+        height: '280', // Высота видео для мобильных устройств
+        width: '100%', // Ширина видео, занимающая всю доступную ширину
+        playerVars: {
+            autoplay: 1, // Автовоспроизведение
+        },
+    };
+
     return (
         <div className="container mt-4">
             <div className="row">
                 <div className="col-lg-8 offset-lg-2">
                     <h2>{lesson.name}</h2>
-                    <div style={{ marginBottom: '1rem' }}>
-                        <div className="video-container">
-                            <YouTube videoId={getYouTubeId(lesson.video)} opts={{ autoplay: 1 }} className="embed-responsive-item" />
-                        </div>
+                    <div className="embed-responsive embed-responsive-16by9">
+                        <YouTube videoId={getYouTubeId(lesson.video)} opts={youtubeOptions} className="embed-responsive-item" />
                     </div>
-                    <div className="mb-4">
+                    <div className="mt-4">
                         <p>{lesson.text}</p>
-                        <Link to={`/course-topics/${courseId}/${topicId}/${lessonId}/tasks`} className="btn btn-primary">Перейти к заданиям</Link>
+                        <Link to={`/course-topics/${courseId}/${topicId}/${lessonId}/tasks`} className="btn btn-primary mr-4">Перейти к заданиям</Link>
                         <Link to={`/course-topics/${courseId}`} className="btn btn-primary">Вернуться к курсу</Link>
                     </div>
                 </div>

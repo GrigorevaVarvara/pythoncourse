@@ -4,12 +4,12 @@ import "./Header.scss";
 import { onAuthStateChanged, signOut } from "firebase/auth"; 
 import { auth } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
+import { Navbar, Nav, Container } from 'react-bootstrap';
 
 const Header = () => {
-
     const [userLoggedIn, setUserLoggedIn] = useState(false);
 
-    useEffect(()=>{
+    useEffect(() => {
         onAuthStateChanged(auth, (user) => {
             if (user) {
               setUserLoggedIn(true); 
@@ -19,12 +19,11 @@ const Header = () => {
               setUserLoggedIn(false); 
               console.log("user is logged out");
             }
-          });
-         
+        });
     }, []);
 
     const navigate = useNavigate();
- 
+
     const handleLogout = () => {               
         signOut(auth).then(() => {
             navigate("/");
@@ -35,26 +34,31 @@ const Header = () => {
     }
     
     return (
-        <header className="header">
-            <div className="header-content d-flex justify-content-between align-items-center">
-                <a href="/"><img className="logo" src={logo} alt="MAP"></img></a>
-                <div className="button-group d-flex align-items-center">
-                    <a className="btn btn-primary mx-2" href="/store">Магазин</a>
-                    {!userLoggedIn ? (
-                        <>
-                            <a className="btn btn-primary mx-2" href="/signup">Зарегистрироваться</a>
-                            <a className="btn btn-primary mx-2" href="/login">Войти</a>
-                        </>
-                    ) : (
-                        <>
-                            <a className="btn btn-primary mx-2" href="/lk">Личный кабинет</a>
-                            <a className="btn btn-primary mx-2" onClick={handleLogout}>Выйти</a>
-                        </>
-                    )}
-                </div>
-            </div>
-        </header>
+        <Navbar expand="lg" className="header">
+            <Container>
+                <Navbar.Brand href="/">
+                    <img className="logo" src={logo} alt="MAP" />
+                </Navbar.Brand>
+                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Collapse id="basic-navbar-nav">
+                    <Nav className="ms-auto button-group">
+                        <Nav.Link className="btn btn-primary mx-2" href="/store">Магазин</Nav.Link>
+                        {!userLoggedIn ? (
+                            <>
+                                <Nav.Link className="btn btn-primary mx-2" href="/signup">Зарегистрироваться</Nav.Link>
+                                <Nav.Link className="btn btn-primary mx-2" href="/login">Войти</Nav.Link>
+                            </>
+                        ) : (
+                            <>
+                                <Nav.Link className="btn btn-primary mx-2" href="/lk">Личный кабинет</Nav.Link>
+                                <Nav.Link className="btn btn-primary mx-2" onClick={handleLogout}>Выйти</Nav.Link>
+                            </>
+                        )}
+                    </Nav>
+                </Navbar.Collapse>
+            </Container>
+        </Navbar>
     )
 }
- 
+
 export default Header;

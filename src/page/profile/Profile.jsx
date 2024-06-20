@@ -141,6 +141,7 @@ const Profile = () => {
                 <div className="col-md-6 d-flex flex-column">
                     <NavLink to="/quiz" className="btn btn-link">Квизы</NavLink>
                     <NavLink to="/leaderboard" className="btn btn-link">Таблица лидеров</NavLink>
+                    <NavLink to="/support" className="btn btn-link">Поддержка</NavLink>
                     {userData?.courses && userData.courses.length > 0 && (
                         <div>
                             <h4>Мои курсы:</h4>

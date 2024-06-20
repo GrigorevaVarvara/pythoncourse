@@ -17,6 +17,7 @@ import LessonPage from './page/lessonpage/lessonpage';
 import TaskPage from './page/taskpage/taskpage';
 import TaskDetailsPage from './page/taskdetailpage/taskdetailpage';
 import PasswordReset from './page/passwordreset/passwordreset';
+import Support from './page/support/support';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-awesome-slider/dist/styles.css';
  
@@ -32,6 +33,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/password-reset" element={<PasswordReset />} />
             <Route path="/lk" element={<Profile />} />
+            <Route path="/support" element={<Support/>} />
             <Route path="/quiz" element={<Quiz/>} />
             <Route path="/leaderboard" element={<Leaderboard/>} />
             <Route path="/store" element={<Store />} />
